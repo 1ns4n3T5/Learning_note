@@ -1,0 +1,59 @@
+7 layers of the OSI (Open Systems Interconnection)
+---------------------------------------------------
+          7. Application
+         / \
+        /   \
+       /     \
+      /       \
+     /         \
+    /           \
+   /             \
+  6. Presentation  5. Session
+ /               \
+/                 \
+4. Transport     3. Network
+ \               /
+  \             /
+   \           /
+    \         /
+     \       /
+      \     /
+       \   /
+        \ /
+         2. Data Link
+          |
+         / \
+        /   \
+       /     \
+      /       \
+     /         \
+    /           \
+   /             \
+  1. Physical    1. Physical
+
+1.Physical layer
+Coax,Fiber,Wireless,Repeaters
+
+2.Data Link  layer
+Ethernet,switch,bridge
+
+3.Network layer
+IP,ICMP,Ipsec,IGMP
+
+4.Transport layer
+TCP,UDP
+
+5.Session layer
+API's,Sockets
+
+6.Presentation layer
+SSL,SSH,IMAP,FTP,JPEG,MPEG
+
+7.Application layer
+HTTP,FTP,DNS,SSH
+
+So,I learn short note from my teacher
+
+----->  Please Do Not Take Sandwich Pizza Away  <-----
+
+
