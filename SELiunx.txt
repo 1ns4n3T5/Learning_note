@@ -1,0 +1,309 @@
+Permission
+--------------------------------------
+
+Premission is like real world sentence. 
+S + V + O
+
+He reads book.
+
+This is same .
+He is subject. 
+Subject likes user/process.
+book is object.
+Object likes file/folder
+
+so, user can access r/w/e.
+---------------------------------------
+
+Linux Permission
+-----------------
+Main two paths,they are 
+Discretionary access control (DAC)
+Mandatroy Access control (MAC)
+
+
+DAC permission
+----------------
+
+user/group/other --- r=4/w=2/e=1 
+
+full permission for all user =  7   7   7  = chown4+2+1 4+2+1 4+2+1
+                               --- --- ---
+                                u   g   o
+
+<or> a=all / u=user /g=group /o=other 
+
+chmod u-x file name <uo +rw > <go+x>
+chmod u+x file name 
+
+note : all folder/directory change permission with -R <recursive Tag> 
+
+--------------------------------------------------------------------------
+
+change user and group ownership with <chown>
+
+chown user:group file/folder
+
+---------------------------------------------------------------------------
+
+DAC normal to extended 
+--------------------------
+
+Access control list(facl)
+setfacl -m <modify> u<user>:testuser:r filename
+
+sticky = if you put sticky system adminstartor only change permission.
+
+----- chmod 1755 folder name ---- <or> -----chmod o+t folder name -------
+
+set uid bit <4> setgid bit <2>
+-----------------------------------
+
+uid and git support special permission for execute<x>.
+
+uid
+chmod 4755 program
+chmod u+s program
+
+gid
+chmod 2755 program
+chmod g+s program
+
+-------------------------------------------------------------------------------------------
+
+MAC <Mandatory Access Control>
+-------------------------------
+
+Types of MAC , < LSM = Linux Security Model >
+                 | SELinux,AppArmor,SMACK,Tomoyo Linux |
+                 ----------------------------------------
+
+AppArmor => SUSE,Debian,Ubuntu,Kali
+SELinux => RedHat Enterprise Linux , CentOs, Fedora 
+
+Different between Apparmor and SELinux
+----------------------------------------
+AppArmor is more esay to understand than SELinux.
+AppArmor stores file system object as Path.SELinux as inode.
+AppArmor don't support Multi-Level security.
+
+Security Enhanced Linux (SELinux) <labeling Engine>
+---------------------------------
+SELinux start NSA.Release 2000 and used Linux Kernel version 2,6 in 2003.Lastest version is here ==> https://github.com/SELinuxProject/ 
+
+SELinux is not Firewall.It can do permission between App/Serviec/User and Interface/Port but is not firewall.And also itn't Anti-Virus and it not all in one security solution.Not protection from Backdoor,Buffer-Overflow attack.Not security Audit/Fit tool.Mean if system have vulnerability program,it not fix code from program,use this vulnerability program and protection system by using permission.
+
+
++-----------------------------------------------+
+|                   SELinux Policy               |
+|                                               |
+|  +----------------------+                     |
+|  |   Type Enforcement   |                     |
+|  +----------------------+                     |
+|            |                                  |
+|  +---------+----------+                       |
+|  |   Security Server  |                       |
+|  +---------+----------+                       |
+|            |                                  |
+|  +---------+----------+                       |
+|  |     Kernel Space   |                       |
+|  +----------------------+                     |
+|            |            |                     |
+|  +---------+---------+  |                     |
+|  |  SELinux Modules |  |                     |
+|  +------------------+  |                     |
+|            |            |                     |
+|  +---------+---------+  |                     |
+|  | Access Vector Cache|  |                     |
+|  +------------------+  |                     |
+|            |            |                     |
+|  +---------+---------+  |                     |
+|  |   Policy Database |  |                     |
+|  +------------------+  |                     |
+|                       |                     |
++-----------------------+---------------------+
+
+SELinux Policy: Specifies the rules and constraints for access control.
+
+Type Enforcement: Enforces security policies based on the type of process and object.
+
+Security Server: Manages and enforces the SELinux security policies.
+
+Kernel Space: The SELinux features integrated into the Linux kernel.
+
+SELinux Modules: Additional modules that enhance SELinux functionality.
+
+Access Vector Cache: Caches recently used security decisions for faster access.
+
+Policy Database: Stores the SELinux security policies.
+
+------------------------------------------------------------------------------------------
+
+To view SELinux's Security context 
+-------------------------------------->
+File/Folder ===> ls -lZ 
+process context ===> ps -Z
+user context ===> id -Z
+
+SELinux User	SELinux Role	SELinux Type	Security Level
+unconfined_u:	unconfined_r:	unconfined_t:	s0-s0:c0c.1023
+
+unconfined means SELinux not control from anyone.
+
+unconfined_u ==> not control from user
+unconfined_r ==> not control from user role <Role-base Access Control>
+unconfined_t ==> not control from File/Folder , process,user,network port <TE - Type Enforcement>
+s0-s0:c0c.1023 ==> It use most difficult Multi-Level Security(MLS) and Multi-Category Security. 's' is "sensitivity level" and c is "category level".
+'s' start 0 to 15 and 'c'start 0 to '1023 or 24' 
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+How SELinux works ==> 
+SELinux sends Allow and Denied messages to Access Vector Cache(AVC).
+Cache remembers if again same case and take decision<Allow/Denied> from cache.It avoids system performance slow.
+
+SELinux Model
+--------------
+Enforcing Mode
+Permissive Mode
+Disabled Mode
+
+Enforcing Mode <setenforce 1>
+----------------
+It works according security policy "Allow" and "Deny".Take AVC cache and make label for new file/folder.
+
+Permissive Mode <setenforce 0>
+----------------
+Allow user/process MAC permission.
+Effect of DAC permission mode.
+Cuz many reasons temporary shutdown SELinux.Use this mode.
+
+Disabled Mode
+-------------
+<To change Disabled mode ==> SELinux config</etc/selinux/config> -- SELinux=disabled -- >
+<To change Enforcing mode ==> touch /.autorelabel>
+Stop SELinux
+
+check mode ==> getenforce
+
+Notice => Must change step by step ==> Disabled Mode -> Permissive Mode -> Enforcing Mode
+
+SELinux Policy Types
+---------------------
+Targeted Environment (TE)
+Minimun 
+Multi-level Security
+
+SELinx Tool
+------------
+policycoreutils-python <control CLI>
+setools-console<collect information>
+
+Manually changing security contexts of files
+---------------------------------------------
+ -----
+|chcon| -t user_home_t file.txt
+ -----
+Restore lable => restorecon -rv 
+using fcontext to change file security contexts auto => semanage fcontext 
+
+semanage fcontext -a -t httpd_sys_content_t "/opt/permission(/.*)?
+
+-a = add
+-t = type
+(/.*)? = all file/folder
+
+
+How to mapping?
+
+Linux user		SELinux users		SELinuxRoles		SELinuxTypes
+-----------		--------------		-------------		-------------
+root			root			sysadm_r		sysadm_t
+--------------------------------------------------------------------------------------
+Yannaing		sysadm_u		sysadm_r		sysadm_t
+<senior Administrator>
+--------------------------------------------------------------------------------------
+koko			staff_u <default>	staff_r			staff_t
+				<switchable>	sysadm_r		sysadm_t
+<junior Administrator>
+---------------------------------------------------------------------------------------
+mgmg			traniee_u		staff_r			staff_t
+<Trainee Administrator>
+---------------------------------------------------------------------------------------
+hlahal			user_u			user_r			user_t
+<end user>
+---------------------------------------------------------------------------------------
+
+View SELinux user
+------------------>
+semange user -l
+add = semanage user -a -R role name user name 
+		          --------- ----------
+			eg-staff_u	trainee_u
+semanage user [-h]
+
+Start mapping --> login --> semanage login -l 
+You can add role in login user. -- semanage login -a -s role name username --
+							-staff_u- insane
+
+semanage login [-h]
+
+-----------------------------------------------------------------------------------------------
+Confinign Network port 
+-----------------------
+semanage port -l 
+semanage port -a -p tcp -t http_port_t 4000
+-a = add port
+-p = choose portocol < tcp / udp >
+-t = label type 
+4000 = add new port no
+-d = delete
+
+start test --->
+sed -i 's/Listen 80/Listen 4000/g' /etc/httpd/conf/httpd.conf
+systemctl start httpd
+netstat -nlp | grep httpd
+
+view log -->
+tail /var/log/audit/audit.log | grep denied
+
+log 
+----
+type=AVC msg=audit(1707756894.561:853): avc:  denied  { name_bind } for  pid=26636 comm="httpd" src=4000 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+type=AVC msg=audit(1707756894.561:854): avc:  denied  { name_bind } for  pid=26636 comm="httpd" src=4000 scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 tclass=tcp_socket permissive=0
+
+
+
+type =AVC (access vector cache)
+msg=audit(----------------:-----------)
+          linux timestamp  unique id
+	  
+name_bind=use network socket
+pid=process id 
+comm="httpd" = name of process
+src=4000 = our port no
+scontext=system_u:system_r:httpd_t:s0 tcontext=system_u:object_r:unreserved_port_t:s0 =security context/target context
+tclass=tcp_socket class if file type show file
+
+permissive mode status
+0 = offline 
+1 = activate
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
