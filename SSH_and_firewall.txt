@@ -1,0 +1,77 @@
+Setup for ssh
+---------------
+sudo yum update
+
+Enable and start the SSH service
+sudo systemctl status sshd
+sudo systemctl enable sshd
+sudo systemctl start sshd
+
+Configure firewall rules for SSH
+---------------------------------
+sudo yum install firewalld
+
+next enable and start firewall 
+sudo systemctl enable firewalld
+sudo systemctl start firewalld
+
+Allow inbound ssh connections
+sudo firewall-cmd --add-service=ssh --permanent
+sudo firewall-cmd --reload
+
+First, create a backup of the original ssh configuration file:
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+sudo vi /etc/ssh/sshd_config
+
+Find the line that starts with #Port 22 and change it to the desired port number. Remove the # at the beginning of the line to uncomment it. For example:
+
+Port 33556
+
+Update the firewall rules to allow inbound connections on the custom SSH port. First, delete the previous SSH rule:
+
+sudo firewall-cmd --remove-service=ssh --permanent
+Add a new rule for the custom SSH port:
+
+sudo firewall-cmd --add-port=33556/tcp --permanent
+Reload the firewall to apply the new rules:
+
+sudo firewall-cmd --reload
+
+Step 6: Restart the SSH Service
+Restart the SSH service to apply the changes with the following command:
+
+sudo systemctl restart sshd
+Step 7: Verify the Custom SSH Port
+You can verify that the SSH service is listening on the custom port by running the following command:
+
+sudo ss -tulpn | grep ssh
+The output should display the new port number (e.g., 33556) in the "Local Address:Port" column.
+
+Step 8: Connect to the Custom SSH Port
+To connect to your system via SSH on the custom port, use the following command from a remote machine:
+
+ssh -p 33556 username@10.20.30.40 <desire username and ip address>
+
+firewall options
+------------------
+1.check firewall status
+firewall-cmd --state
+
+2.list available zones
+sudo firewall-cmd --get-zones
+
+3.check active zone
+sudo firewall-cmd --get-active-zones
+
+4.open ports
+sudo firewall-cmd --zone=public --add-port=80/tcp --permanent
+sudo firewall-cmd --reload
+
+5.open services
+sudo firewall-cmd --zone=public --add-service=http --permanent
+
+6. allow incoming connection
+firewall-cmd --zone=public --add-source=192.168.1.2 --permanent
+
+
+
